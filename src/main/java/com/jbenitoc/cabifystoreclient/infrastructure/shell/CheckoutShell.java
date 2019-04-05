@@ -1,4 +1,4 @@
-package com.jbenitoc.cabifystoreclient.infrastructure;
+package com.jbenitoc.cabifystoreclient.infrastructure.shell;
 
 import com.jbenitoc.cabifystoreclient.application.add.AddItemToCart;
 import com.jbenitoc.cabifystoreclient.application.add.AddItemToCartCommand;
