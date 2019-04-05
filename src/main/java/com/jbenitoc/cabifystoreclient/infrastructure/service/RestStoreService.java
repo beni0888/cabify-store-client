@@ -1,4 +1,4 @@
-package com.jbenitoc.cabifystoreclient.infrastructure;
+package com.jbenitoc.cabifystoreclient.infrastructure.service;
 
 import com.jbenitoc.cabifystoreclient.domain.model.Cart;
 import com.jbenitoc.cabifystoreclient.domain.model.Price;
