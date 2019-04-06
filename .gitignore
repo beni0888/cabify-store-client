@@ -28,3 +28,4 @@
 .vscode/
 
 /cabify-store-client.log
+/logs/
