@@ -3,6 +3,7 @@ package com.jbenitoc.cabifystoreclient.infrastructure.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbenitoc.cabifystoreclient.domain.model.UnexpectedError;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ public class JsonParser {
 
     private ObjectMapper mapper;
 
-    public  <T> T parseStringToObject(String jsonString, Class<T> targetClass) {
+    public  <T> T parseStringToObject(@NonNull String jsonString, Class<T> targetClass) {
         try {
             return mapper.readValue(jsonString, targetClass);
         } catch (IOException e) {

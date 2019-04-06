@@ -36,7 +36,7 @@ public class RestStoreService implements StoreService {
     public Cart createCart() {
         String url = composeUrl(configuration.getEndpoint().getCreateCart());
         ResponseEntity<String> response = restTemplate.postForEntity(url, null, String.class);
-        CreateCartResponse createCartResponse = apiResponseHandler.parseApiResponse(response, CreateCartResponse.class);
+        CreateCartResponse createCartResponse = apiResponseHandler.parseToObject(response, CreateCartResponse.class);
         return new Cart(createCartResponse.id);
     }
 
@@ -45,21 +45,21 @@ public class RestStoreService implements StoreService {
         AddItemToCartRequest request = new AddItemToCartRequest(itemCode, quantity);
         String url = composeUrl(configuration.getEndpoint().getAddItem());
         ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class, cartId);
-        apiResponseHandler.parseApiResponse(response, Void.class);
+        apiResponseHandler.parseToObject(response, Void.class);
     }
 
     @Override
     public Price getTotalAmount(@NonNull String cartId) {
         String url = composeUrl(configuration.getEndpoint().getGetTotal());
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class, cartId);
-        GetCartTotalAmountResponse totalAmountResponse = apiResponseHandler.parseApiResponse(response, GetCartTotalAmountResponse.class);
+        GetCartTotalAmountResponse totalAmountResponse = apiResponseHandler.parseToObject(response, GetCartTotalAmountResponse.class);
         return new Price(totalAmountResponse.totalAmount);
     }
 
     @Override
-    public void deleteCart(String cartId) {
+    public void deleteCart(@NonNull String cartId) {
         String url = composeUrl(configuration.getEndpoint().getDeleteCart());
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, null, String.class, cartId);
-        apiResponseHandler.parseApiResponse(response, Void.class);
+        apiResponseHandler.parseToObject(response, Void.class);
     }
 }
