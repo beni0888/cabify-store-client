@@ -8,16 +8,12 @@ import com.jbenitoc.cabifystoreclient.application.delete.DeleteCartQuery;
 import com.jbenitoc.cabifystoreclient.application.total.GetCartTotalAmount;
 import com.jbenitoc.cabifystoreclient.application.total.GetCartTotalAmountQuery;
 import com.jbenitoc.cabifystoreclient.domain.model.Cart;
-import com.jbenitoc.cabifystoreclient.domain.model.DomainError;
 import com.jbenitoc.cabifystoreclient.domain.model.Price;
-import com.jbenitoc.cabifystoreclient.domain.model.UnexpectedError;
+import com.jbenitoc.cabifystoreclient.infrastructure.command.CommandExecutor;
 import lombok.AllArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import org.springframework.web.client.ResourceAccessException;
-
-import java.util.function.Supplier;
 
 import static com.jbenitoc.cabifystoreclient.infrastructure.util.ShellFormatter.errorMessage;
 import static com.jbenitoc.cabifystoreclient.infrastructure.util.ShellFormatter.successMessage;
@@ -29,26 +25,15 @@ public class CheckoutShell {
 
     private static final String LINE_BREAK = System.lineSeparator();
 
+    private CommandExecutor commandExecutor;
     private CreateCart createCart;
     private AddItemToCart addItemToCart;
     private GetCartTotalAmount getCartTotalAmount;
     private DeleteCart deleteCart;
 
-    private String executeCommand(Supplier<String> command) {
-        try {
-            return command.get();
-        } catch (DomainError e) {
-            throw e;
-        } catch (ResourceAccessException e) {
-            throw new UnexpectedError("ERROR: It was impossible to connect to server.", e);
-        } catch (Exception e) {
-            throw new UnexpectedError("ERROR: An unexpected error occurred", e);
-        }
-    }
-
     @ShellMethod(value = "Create a new shopping cart", key = {"create-cart", "create"})
     public String createCart() {
-        return executeCommand(() -> {
+        return commandExecutor.execute(() -> {
             Cart cart = createCart.execute();
             return successMessage(String.format("Cart created: { cartId: %s }", cart.getId()));
         });
@@ -63,7 +48,7 @@ public class CheckoutShell {
             @ShellOption(value = {"-quantity"}, defaultValue = "1", help = "Id of the cart to add the item to")
             int quantity) {
 
-        return executeCommand(() -> {
+        return commandExecutor.execute(() -> {
             addItemToCart.execute(new AddItemToCartCommand(cartId, itemCode, quantity));
             return successMessage("Item added to cart");
         });
@@ -76,7 +61,7 @@ public class CheckoutShell {
             @ShellOption(value = {"-items", "-itemCodes", "-codes"}, help = "Comma-separated list of item-codes to be added to the cart (VOUCHER,TSHIRT,MUG,TSHIRT)")
                     String itemCodes) {
 
-        return executeCommand(() -> {
+        return commandExecutor.execute(() -> {
             int quantityPerItem = 1;
             StringBuilder outputBuffer = new StringBuilder();
             final String itemSplitter = ",";
@@ -99,7 +84,7 @@ public class CheckoutShell {
             @ShellOption(value = {"-cart", "-cartId"}, help = "Id of the cart")
             String cartId) {
 
-        return executeCommand(() -> {
+        return commandExecutor.execute(() -> {
             Price total = getCartTotalAmount.execute(new GetCartTotalAmountQuery(cartId));
             return successMessage(String.format("Total amount: %s €", total));
         });
@@ -110,7 +95,7 @@ public class CheckoutShell {
             @ShellOption(value = {"-cart", "-cartId"}, help = "Id of the cart to be deleted")
             String cartId) {
 
-        return executeCommand(() -> {
+        return commandExecutor.execute(() -> {
             deleteCart.execute(new DeleteCartQuery(cartId));
             return successMessage(String.format("Cart deleted: { cartId: %s }", cartId));
         });
