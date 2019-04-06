@@ -19,6 +19,8 @@ import org.springframework.web.client.ResourceAccessException;
 
 import java.util.function.Supplier;
 
+import static com.jbenitoc.cabifystoreclient.infrastructure.util.ShellFormatter.errorMessage;
+import static com.jbenitoc.cabifystoreclient.infrastructure.util.ShellFormatter.successMessage;
 import static java.util.Arrays.stream;
 
 @ShellComponent
@@ -48,7 +50,7 @@ public class CheckoutShell {
     public String createCart() {
         return executeCommand(() -> {
             Cart cart = createCart.execute();
-            return String.format("Cart created: { cartId: %s }", cart.getId());
+            return successMessage(String.format("Cart created: { cartId: %s }", cart.getId()));
         });
     }
 
@@ -63,7 +65,7 @@ public class CheckoutShell {
 
         return executeCommand(() -> {
             addItemToCart.execute(new AddItemToCartCommand(cartId, itemCode, quantity));
-            return "Item added to cart";
+            return successMessage("Item added to cart");
         });
     }
 
@@ -81,10 +83,10 @@ public class CheckoutShell {
             stream(itemCodes.split(itemSplitter)).forEach(code -> {
                 try {
                     addItemToCart.execute(new AddItemToCartCommand(cartId, code, quantityPerItem));
-                    outputBuffer.append("Item added: ").append(code).append(LINE_BREAK);
+                    outputBuffer.append(successMessage(String.format("Item added: %s", code))).append(LINE_BREAK);
                 } catch (Exception e) {
-                    outputBuffer.append("Error adding item: ").append(code)
-                            .append(" - Error: ").append(e.getMessage()).append(LINE_BREAK);
+                    String message = String.format("Error adding item: %s - Error: %s", code, e.getMessage());
+                    outputBuffer.append(errorMessage(message)).append(LINE_BREAK);
                 }
             });
 
@@ -99,7 +101,7 @@ public class CheckoutShell {
 
         return executeCommand(() -> {
             Price total = getCartTotalAmount.execute(new GetCartTotalAmountQuery(cartId));
-            return String.format("Total amount: %s €", total);
+            return successMessage(String.format("Total amount: %s €", total));
         });
     }
 
@@ -110,7 +112,7 @@ public class CheckoutShell {
 
         return executeCommand(() -> {
             deleteCart.execute(new DeleteCartQuery(cartId));
-            return String.format("Cart deleted: { cartId: %s }", cartId);
+            return successMessage(String.format("Cart deleted: { cartId: %s }", cartId));
         });
     }
 
